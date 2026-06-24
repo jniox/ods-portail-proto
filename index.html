@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portail RH ODS — prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ee; --surface:#ffffff; --surface2:#f7f1e8; --ink:#2c2419; --dim:#6a5d4d; --faint:#9c8e7d;
+  --border:rgba(60,40,20,.10); --line:rgba(60,40,20,.07);
+  --orange:#e07b1f; --orange-d:#c4661a; --orange-soft:#fcecdb;
+  --green:#3f8c4f; --green-soft:#e7f2e7; --blue:#3f6f93; --blue-soft:#e6f0f6;
+  --gold:#b58a22; --gold-soft:#f8efd6; --rose:#c0455a; --rose-soft:#fce3e7;
+  --serif:"Fraunces",Georgia,serif; --sans:"Plus Jakarta Sans",system-ui,sans-serif;
+}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+/* shell */
+.app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:58px 1fr;min-height:100vh}
+.topbar{grid-column:1/3;display:flex;align-items:center;gap:14px;padding:0 18px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--orange);font-size:15px}
+.eye{width:24px;height:24px;border-radius:50%;border:3px solid var(--orange);position:relative}.eye::after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--orange)}
+.search{flex:1;max-width:420px;background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:8px 14px;color:var(--faint);font-size:13px}
+.spacer{flex:1}
+.tb-ic{width:34px;height:34px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--dim);cursor:pointer;position:relative;font-size:15px}
+.tb-ic .bd{position:absolute;top:-3px;right:-3px;background:var(--orange);color:#fff;font-size:9px;font-weight:700;border-radius:999px;padding:0 4px}
+.lang{display:flex;border:1px solid var(--border);border-radius:999px;overflow:hidden;font-size:11px;font-weight:600;cursor:pointer}
+.lang span{padding:5px 9px;color:var(--dim)}.lang span.on{background:var(--orange);color:#fff}
+.side{background:var(--surface);border-right:1px solid var(--border);padding:14px 10px;display:flex;flex-direction:column;gap:3px}
+.nav{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:11px;color:var(--dim);font-weight:500;font-size:14px;cursor:pointer}
+.nav:hover{background:var(--surface2);color:var(--ink)}
+.nav.on{background:var(--orange-soft);color:var(--orange-d);font-weight:700}
+.nav .i{width:20px;text-align:center}
+.content{padding:26px 30px;overflow:auto}
+@media(max-width:820px){
+  .app{grid-template-columns:1fr;grid-template-rows:58px auto 1fr}
+  .side{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);padding:8px}
+  .nav{flex:0 0 auto;white-space:nowrap}.nav .lbl{display:none}.nav.on .lbl{display:inline}
+  .content{padding:18px}
+}
+/* screens */
+.screen{display:none;animation:fade .35s ease}.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);margin:0 0 4px}
+.muted{color:var(--dim);margin:0 0 18px}
+.cards{display:grid;gap:14px}
+.g3{grid-template-columns:1fr 1.2fr .9fr}.g2{grid-template-columns:1fr 1fr}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g3,.g2,.g4{grid-template-columns:1fr 1fr}}@media(max-width:560px){.g3,.g2,.g4{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
+.ct{font-weight:700;font-size:13px;color:var(--orange);display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.btn{display:inline-block;background:var(--orange);color:#fff;font-weight:600;font-size:13px;border:none;border-radius:999px;padding:9px 16px;cursor:pointer;text-align:center}
+.btn.full{display:block;width:100%}.btn.ghost{background:var(--surface2);color:var(--orange-d);border:1px solid var(--border)}
+.lv{text-align:center;padding:4px 0}.lv .n{font-family:var(--serif);font-size:2.3rem;color:var(--ink);font-weight:600;line-height:1}.lv .u{font-size:12px;color:var(--dim)}
+.fi{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13px;color:var(--dim)}.fi:first-of-type{border-top:none}.fi b{color:var(--ink)}
+.av{width:26px;height:26px;border-radius:50%;background:var(--gold-soft);color:var(--gold);flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.av.ph{background:var(--orange-soft);color:var(--orange)}.av.bl{background:var(--blue-soft);color:var(--blue)}
+.vid{font-size:10px;background:var(--orange-soft);color:var(--orange-d);padding:1px 6px;border-radius:5px;cursor:pointer}
+.task{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:13px;color:var(--dim)}.task .dt{width:9px;height:9px;border-radius:3px;background:var(--green)}
+.mini{font-size:13px;color:var(--dim);padding:7px 0;display:flex;gap:9px;align-items:center;border-top:1px solid var(--line)}.mini:first-of-type{border-top:none}
+.cake{width:26px;height:26px;border-radius:8px;background:var(--rose-soft);color:var(--rose);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.hello{font-family:var(--serif);font-size:2rem;color:var(--orange);font-weight:600;margin:0 0 16px}
+/* leave balance cards */
+.balrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:560px){.balrow{grid-template-columns:1fr}}
+.bal{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px;text-align:center}
+.bal .n{font-family:var(--serif);font-size:1.8rem;font-weight:600}.bal .t{font-size:12px;color:var(--dim)}
+/* form */
+.form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:14px;display:none}
+.form.on{display:block}
+.frow{margin-bottom:12px}.frow label{display:block;font-size:12px;color:var(--dim);font-weight:600;margin-bottom:4px}
+.inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:14px;color:var(--ink)}
+.hintok{font-size:12px;color:var(--green);margin-top:4px}
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font-size:13px;padding:7px 13px;border-radius:9px;background:var(--surface2);color:var(--dim);cursor:pointer;border:1px solid var(--border)}
+.tab.on{background:var(--orange);color:#fff;font-weight:600;border-color:var(--orange)}
+.tabpane{display:none}.tabpane.on{display:block}
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}.kv:last-child{border:none}.kv .k{color:var(--dim)}.kv .v{font-weight:600}
+/* directory + org */
+.people{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}@media(max-width:760px){.people{grid-template-columns:1fr 1fr}}
+.person{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px;text-align:center}
+.person .pa{width:54px;height:54px;border-radius:50%;background:var(--orange-soft);color:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto 8px;font-size:17px}
+.person .nm{font-weight:700;font-size:14px}.person .ro{font-size:12px;color:var(--faint)}
+.person .st{font-size:11px;margin-top:5px}.dotg{color:var(--green)}.doto{color:var(--orange)}
+.org{margin-top:20px;text-align:center}
+.orgn{display:inline-block;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:8px 14px;margin:4px;font-size:13px;font-weight:600}
+.orgline{height:16px;border-left:2px solid var(--border);width:0;margin:0 auto}
+/* progress */
+.bar{height:9px;background:var(--surface2);border-radius:6px;overflow:hidden;margin-top:5px}.bar i{display:block;height:100%;background:var(--orange)}
+.course{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:14px}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px}.bg-ok{background:var(--green-soft);color:var(--green)}.bg-go{background:var(--orange-soft);color:var(--orange-d)}
+.lock{color:var(--faint);font-size:12px}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(30,20,10,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.on{display:flex}
+.modal .box{background:var(--surface);border-radius:16px;max-width:440px;width:100%;padding:22px;text-align:center}
+.modal .vbox{aspect-ratio:16/9;background:#1a1410;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px;margin:12px 0}
+.banner{background:var(--orange-soft);color:var(--orange-d);font-size:12px;text-align:center;padding:6px;font-weight:600}
+/* profile band + vital panel (fidélité BambooHR) */
+.pband{display:flex;align-items:center;gap:14px;background:linear-gradient(120deg,var(--orange),var(--orange-d));color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.pavatar{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;flex:0 0 auto}
+.pname{font-family:var(--serif);font-size:1.5rem;font-weight:600;line-height:1.1}
+.prole{font-size:13px;opacity:.92}
+.profilegrid{display:grid;grid-template-columns:240px 1fr;gap:16px}
+@media(max-width:760px){.profilegrid{grid-template-columns:1fr}.pname{font-size:1.25rem}}
+.vital{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;height:fit-content}
+.vt{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-bottom:8px;font-weight:700}
+.vrow{font-size:13px;color:var(--dim);padding:7px 0;border-top:1px solid var(--line);display:flex;gap:8px}.vrow:first-of-type{border-top:none}
+.iconbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--orange-d);cursor:pointer;font-size:13px}
+.foot{margin-top:24px;color:var(--faint);font-size:11px;text-align:center}
+</style>
+</head>
+<body>
+<div class="banner">PROTOTYPE — maquette interactive du portail RH ODS · données fictives</div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><span class="eye"></span> ODS · RH</div>
+    <div class="search">🔍 <span data-i18n="search">Rechercher un collègue, un document…</span></div>
+    <div class="spacer"></div>
+    <button class="btn" style="padding:7px 14px" onclick="openModal('new')">+ <span data-i18n="newbtn">Nouveau</span></button>
+    <div class="lang" onclick="toggleLang()"><span id="lfr" class="on">FR</span><span id="len">EN</span></div>
+    <div class="tb-ic" onclick="openModal('notif')">🔔<span class="bd">3</span></div>
+    <div class="tb-ic">❔</div>
+    <div class="tb-ic">👤</div>
+  </div>
+
+  <aside class="side" id="side"></aside>
+
+  <main class="content">
+    <!-- ACCUEIL -->
+    <section class="screen on" id="s-accueil">
+      <div class="hello" data-i18n="hello">Bonjour, Awa 👋</div>
+      <div class="cards g3">
+        <div>
+          <div class="card">
+            <div class="ct">🌴 <span data-i18n="myleave">Mes congés</span></div>
+            <div class="lv"><div class="n">11,0</div><div class="u" data-i18n="daysavail">jours disponibles</div></div>
+            <button class="btn full" style="margin-top:10px" onclick="go('conges');openLeaveForm()" data-i18n="requestleave">Demander un congé</button>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <div class="ct">✅ <span data-i18n="mytasks">Mes tâches</span></div>
+            <div class="task"><span class="dt"></span> Formation sécurité — à finir</div>
+            <div class="task"><span class="dt"></span> Note de frais mai — compléter</div>
+            <div class="task"><span class="dt"></span> Politique congés <span class="vid" onclick="openModal('sign')">à signer</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="ct">📣 <span data-i18n="whatsnew">Quoi de neuf chez ODS</span></div>
+            <div class="fi"><span class="av">DG</span><div>Le DG : <b>Nouvelle politique de congés</b> <span class="vid" onclick="openModal('video')">▶ vidéo 3 min</span><br><span style="color:var(--faint);font-size:11px">il y a 2 j</span></div></div>
+            <div class="fi"><span class="av">RH</span><div>RH : <b>Lancement du portail</b> <span class="vid" onclick="openModal('video')">▶ tuto</span></div></div>
+            <div class="fi"><span class="av">📅</span><div><b data-i18n="outtoday">Absents aujourd'hui :</b> Karim (congé), Fatou (mission)</div></div>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <div class="ct">👋 <span data-i18n="newjoiners">Nouveaux arrivants — cette semaine</span></div>
+            <div class="fi"><span class="av ph">JN</span><div><b>James Niox</b> — Développeur · lundi<br><span style="color:var(--faint);font-size:11px">« Ravi de rejoindre ODS ! »</span></div></div>
+            <div class="fi"><span class="av bl">SD</span><div><b>Sira Diop</b> — Stagiaire RH · mercredi</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="ct">🎂 <span data-i18n="birthdays">Anniversaires du mois</span></div>
+            <div class="mini"><span class="cake">🎂</span> Awa N. — 12 juin</div>
+            <div class="mini"><span class="cake">🎂</span> Modou S. — 18 juin</div>
+            <div class="mini"><span class="cake">🎖️</span> Karim B. — 3 ans chez ODS</div>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <div class="ct">🔗 <span data-i18n="shortcuts">Raccourcis</span></div>
+            <div class="mini" style="cursor:pointer" onclick="go('bulletins')">📄 Mes bulletins</div>
+            <div class="mini" style="cursor:pointer" onclick="go('annuaire')">📇 Annuaire</div>
+            <div class="mini" style="cursor:pointer" onclick="go('formation')">🎓 Mes formations</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONGES -->
+    <section class="screen" id="s-conges">
+      <h1 data-i18n="leave">Mes congés</h1>
+      <p class="muted" data-i18n="leavesub">Vos soldes par type, vos demandes en cours.</p>
+      <div class="balrow">
+        <div class="bal"><div class="n">11,0</div><div class="t">Congé annuel · disponibles</div></div>
+        <div class="bal"><div class="n">5,0</div><div class="t">Congé maladie</div></div>
+        <div class="bal"><div class="n">15,0</div><div class="t">Événements familiaux</div></div>
+      </div>
+      <button class="btn" style="margin-top:14px" onclick="openLeaveForm()" data-i18n="requestleave">Demander un congé</button>
+      <div class="form" id="leaveForm">
+        <div class="frow"><label data-i18n="ftype">Type de congé</label><select class="inp"><option>Congé annuel</option><option>Congé maladie</option><option>Événement familial</option></select></div>
+        <div class="cards g2">
+          <div class="frow"><label data-i18n="ffrom">Du</label><input class="inp" type="date" value="2026-07-14"></div>
+          <div class="frow"><label data-i18n="fto">Au</label><input class="inp" type="date" value="2026-07-18"></div>
+        </div>
+        <div class="frow"><label>Approbateur</label><input class="inp" value="Mme Sow (manager) · backup : RH si absente" readonly></div>
+        <div class="hintok">✓ Solde suffisant : 11,0 j disponibles — demande de 5 j</div>
+        <button class="btn" style="margin-top:12px" onclick="openModal('sent')" data-i18n="send">Envoyer la demande</button>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="ct">🗂️ <span data-i18n="myrequests">Mes demandes</span></div>
+        <div class="kv"><span class="k">14–18 juil · Congé annuel (5j)</span><span class="v" style="color:var(--orange)">En attente</span></div>
+        <div class="kv"><span class="k">2 mai · Congé annuel (1j)</span><span class="v" style="color:var(--green)">Approuvé</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="ct">📆 <span data-i18n="upcoming">Congés à venir (équipe)</span></div>
+        <div class="kv"><span class="k">🎉 3 août · Jour férié</span><span class="v">tous</span></div>
+        <div class="kv"><span class="k">Karim Ba · 16–20 juin</span><span class="v">Congé annuel</span></div>
+        <div class="kv"><span class="k">Fatou Fall · 24 juin</span><span class="v">Mission</span></div>
+      </div>
+    </section>
+
+    <!-- DOSSIER -->
+    <section class="screen" id="s-dossier">
+      <div class="pband">
+        <div class="pavatar">AN</div>
+        <div><div class="pname">Awa Ndiaye</div><div class="prole">Chargée d'opérations · Dakar</div></div>
+        <button class="btn" style="margin-left:auto;background:#fff;color:var(--orange-d)" onclick="openModal('change')" data-i18n="reqchange">Demander un changement</button>
+      </div>
+      <div class="profilegrid">
+        <aside class="vital">
+          <div class="vt" data-i18n="vitaldata">Données vitales</div>
+          <div class="vrow">📞 77 123 45 67</div>
+          <div class="vrow">✉️ awa@ods.sn</div>
+          <div class="vrow">📍 Dakar, Sénégal · Temps plein</div>
+          <div class="vrow">🏢 Opérations</div>
+          <div class="vrow">📅 Embauchée le 16 déc. 2022<br>&nbsp;&nbsp;&nbsp;(3 a · 6 m)</div>
+          <div class="vrow">🏅 Total Rewards</div>
+        </aside>
+        <div>
+      <div class="tabs">
+        <div class="tab on" onclick="tab(this,'t-perso')" data-i18n="tperso">Personnel</div>
+        <div class="tab" onclick="tab(this,'t-emploi')" data-i18n="temploi">Emploi</div>
+        <div class="tab" onclick="tab(this,'t-conge')" data-i18n="tconge">Congés</div>
+        <div class="tab" onclick="tab(this,'t-docs')" data-i18n="tdocs">Documents</div>
+        <div class="tab" onclick="tab(this,'t-urg')" data-i18n="turg">Urgence</div>
+      </div>
+      <div class="card">
+        <div class="tabpane on" id="t-perso">
+          <div class="kv"><span class="k">Nom</span><span class="v">Awa Ndiaye</span></div>
+          <div class="kv"><span class="k">Téléphone</span><span class="v">77 123 45 67</span></div>
+          <div class="kv"><span class="k">E-mail</span><span class="v">awa@ods.sn</span></div>
+          <button class="btn ghost" style="margin-top:14px" onclick="openModal('change')" data-i18n="reqchange">Demander un changement</button>
+        </div>
+        <div class="tabpane" id="t-emploi">
+          <div class="kv"><span class="k">Poste</span><span class="v">Chargée d'opérations</span></div>
+          <div class="kv"><span class="k">Manager</span><span class="v">Mme Sow</span></div>
+          <div class="kv"><span class="k">Date d'embauche</span><span class="v">16 déc. 2022</span></div>
+        </div>
+        <div class="tabpane" id="t-conge"><div class="kv"><span class="k">Solde annuel</span><span class="v">11,0 j</span></div><div class="kv"><span class="k">Maladie</span><span class="v">5,0 j</span></div></div>
+        <div class="tabpane" id="t-docs">
+          <div class="kv"><span class="k">📄 Contrat de travail</span><span class="v vid" onclick="openModal('sign')">signer</span></div>
+          <div class="kv"><span class="k">📄 Bulletin mai 2026</span><span class="v">télécharger</span></div>
+          <button class="btn ghost" style="margin-top:12px" onclick="openModal('change')">+ Joindre un document</button>
+        </div>
+        <div class="tabpane" id="t-urg"><div class="kv"><span class="k">Contact d'urgence</span><span class="v">M. Ndiaye · 77 000 00 00</span></div></div>
+      </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANNUAIRE -->
+    <section class="screen" id="s-annuaire">
+      <h1 data-i18n="directory">Annuaire</h1>
+      <p class="muted" data-i18n="dirsub">Qui est qui, qui est présent.</p>
+      <div class="search" style="max-width:none;margin-bottom:14px">🔍 Rechercher un collègue…</div>
+      <div class="people">
+        <div class="person"><div class="pa">AS</div><div class="nm">Aïssatou Sow</div><div class="ro">Manager Ops</div><div class="st dotg">● présente</div></div>
+        <div class="person"><div class="pa">KB</div><div class="nm">Karim Ba</div><div class="ro">Commercial</div><div class="st doto">● congé → 20/06</div></div>
+        <div class="person"><div class="pa">FF</div><div class="nm">Fatou Fall</div><div class="ro">Finance</div><div class="st doto">● mission</div></div>
+        <div class="person"><div class="pa">MS</div><div class="nm">Modou Sarr</div><div class="ro">Développeur</div><div class="st dotg">● présent</div></div>
+      </div>
+      <div class="org">
+        <div class="ct" style="justify-content:center">🏢 <span data-i18n="orgchart">Organigramme</span></div>
+        <div class="orgn">Direction Générale</div>
+        <div class="orgline"></div>
+        <div><span class="orgn">RH</span><span class="orgn">Finance</span><span class="orgn">Opérations</span><span class="orgn">Commercial</span></div>
+      </div>
+    </section>
+
+    <!-- ACTUALITES -->
+    <section class="screen" id="s-actu">
+      <h1 data-i18n="news">Actualités</h1>
+      <p class="muted">Communication interne ODS.</p>
+      <div class="cards">
+        <div class="card"><div class="fi"><span class="av">DG</span><div><b>Nouvelle politique de congés</b> <span class="vid" onclick="openModal('video')">▶ vidéo 3 min</span><br><span style="color:var(--dim);font-size:13px">Nouvelles règles applicables au 1er juillet. Merci de lire et signer.</span><br><button class="btn ghost" style="margin-top:8px" onclick="openModal('sign')">Lire &amp; accuser réception</button></div></div></div>
+        <div class="card"><div class="fi"><span class="av">RH</span><div><b>Bienvenue aux nouveaux collègues</b><br><span style="color:var(--dim);font-size:13px">3 arrivées ce mois-ci. Découvrez-les sur l'accueil.</span></div></div></div>
+        <div class="card"><div class="fi"><span class="av">RH</span><div><b>Comment utiliser le portail</b> <span class="vid" onclick="openModal('video')">▶ tuto</span></div></div></div>
+      </div>
+    </section>
+
+    <!-- FORMATION -->
+    <section class="screen" id="s-formation">
+      <h1 data-i18n="training">Formation</h1>
+      <p class="muted">Vos parcours &amp; e-learning.</p>
+      <div class="cards g2">
+        <div class="course"><div style="display:flex;justify-content:space-between"><b>Onboarding ODS</b><span class="badge bg-go">en cours</span></div><div class="bar"><i style="width:60%"></i></div><div style="font-size:12px;color:var(--dim);margin-top:5px">3/5 modules</div></div>
+        <div class="course"><div style="display:flex;justify-content:space-between"><b>Sécurité de l'information</b><span class="badge bg-go">à faire</span></div><div class="bar"><i style="width:0%"></i></div><div style="font-size:12px;color:var(--dim);margin-top:5px">obligatoire · échéance 30/06</div></div>
+        <div class="course"><div style="display:flex;justify-content:space-between"><b>Conformité &amp; qualité</b><span class="badge bg-ok">terminé ✓</span></div><div class="bar"><i style="width:100%"></i></div><div style="font-size:12px;color:var(--dim);margin-top:5px">certificat disponible</div></div>
+        <div class="course"><div style="display:flex;justify-content:space-between"><b>Outils bureautiques</b><span class="lock">🔒 verrouillé</span></div><div class="bar"><i style="width:0%"></i></div></div>
+      </div>
+    </section>
+
+    <!-- ENGAGEMENT -->
+    <section class="screen" id="s-engagement">
+      <h1 data-i18n="engagement">Engagement</h1>
+      <p class="muted" data-i18n="engsub">Enquête anonyme — résultats par service (masqués si &lt; 5 répondants).</p>
+      <div class="card">
+        <div class="ct">📊 Climat social — juin 2026</div>
+        <div style="margin-bottom:12px"><b>Opérations</b> <span style="color:var(--faint);font-size:12px">(12 réponses)</span><div class="bar"><i style="width:82%"></i></div></div>
+        <div style="margin-bottom:12px"><b>Commercial</b> <span style="color:var(--faint);font-size:12px">(7 réponses)</span><div class="bar"><i style="width:68%"></i></div></div>
+        <div style="margin-bottom:12px"><b>RH</b> <span style="color:var(--faint);font-size:12px">(6 réponses)</span><div class="bar"><i style="width:74%"></i></div></div>
+        <div style="color:var(--faint);font-size:13px">🔒 <b>Direction</b> (3 réponses) — masqué pour garantir l'anonymat (&lt; 5)</div>
+      </div>
+      <button class="btn" style="margin-top:14px" onclick="openModal('survey')" data-i18n="answersurvey">Répondre à l'enquête</button>
+    </section>
+
+    <!-- BULLETINS -->
+    <section class="screen" id="s-bulletins">
+      <h1 data-i18n="payslips">Mes bulletins</h1>
+      <p class="muted">Bulletins de paie en self-service.</p>
+      <div class="card">
+        <div class="kv"><span class="k">📄 Mai 2026</span><span class="v vid">télécharger</span></div>
+        <div class="kv"><span class="k">📄 Avril 2026</span><span class="v vid">télécharger</span></div>
+        <div class="kv"><span class="k">📄 Mars 2026</span><span class="v vid">télécharger</span></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- modal -->
+<div class="modal" id="modal" onclick="if(event.target.id==='modal')closeModal()">
+  <div class="box" id="modalbox"></div>
+</div>
+
+<script>
+const NAV = [
+  ['accueil','🏠','Accueil','Home'],
+  ['conges','🌴','Mes congés','My leave'],
+  ['dossier','👤','Mon dossier','My profile'],
+  ['annuaire','📇','Annuaire','Directory'],
+  ['actu','📣','Actualités','News'],
+  ['formation','🎓','Formation','Training'],
+  ['engagement','📊','Engagement','Engagement'],
+  ['bulletins','📄','Bulletins','Payslips'],
+];
+const I18N = {
+  fr:{search:"Rechercher un collègue, un document…",hello:"Bonjour, Awa 👋",myleave:"Mes congés",daysavail:"jours disponibles",requestleave:"Demander un congé",mytasks:"Mes tâches",whatsnew:"Quoi de neuf chez ODS",outtoday:"Absents aujourd'hui :",newjoiners:"Nouveaux arrivants — cette semaine",birthdays:"Anniversaires du mois",shortcuts:"Raccourcis",leave:"Mes congés",leavesub:"Vos soldes par type, vos demandes en cours.",myrequests:"Mes demandes",ftype:"Type de congé",ffrom:"Du",fto:"Au",send:"Envoyer la demande",myfile:"Mon dossier",tperso:"Personnel",temploi:"Emploi",tconge:"Congés",tdocs:"Documents",turg:"Urgence",reqchange:"Demander un changement",directory:"Annuaire",dirsub:"Qui est qui, qui est présent.",orgchart:"Organigramme",news:"Actualités",training:"Formation",engagement:"Engagement",engsub:"Enquête anonyme — résultats par service (masqués si < 5 répondants).",answersurvey:"Répondre à l'enquête",payslips:"Mes bulletins",newbtn:"Nouveau",vitaldata:"Données vitales",upcoming:"Congés à venir (équipe)",reqchange:"Demander un changement"},
+  en:{search:"Search a colleague, a document…",hello:"Hello, Awa 👋",myleave:"My leave",daysavail:"days available",requestleave:"Request leave",mytasks:"My tasks",whatsnew:"What's new at ODS",outtoday:"Out today:",newjoiners:"New joiners — this week",birthdays:"Birthdays this month",shortcuts:"Shortcuts",leave:"My leave",leavesub:"Your balances by type, your pending requests.",myrequests:"My requests",ftype:"Leave type",ffrom:"From",fto:"To",send:"Submit request",myfile:"My profile",tperso:"Personal",temploi:"Job",tconge:"Leave",tdocs:"Documents",turg:"Emergency",reqchange:"Request a change",directory:"Directory",dirsub:"Who's who, who's in.",orgchart:"Org chart",news:"News",training:"Training",engagement:"Engagement",engsub:"Anonymous survey — results by team (hidden if < 5 respondents).",answersurvey:"Take the survey",payslips:"My payslips",newbtn:"New",vitaldata:"Vital data",upcoming:"Upcoming time off (team)",reqchange:"Request a change"}
+};
+let lang='fr';
+function buildNav(){
+  document.getElementById('side').innerHTML = NAV.map(n=>
+    `<div class="nav${n[0]==='accueil'?' on':''}" data-scr="${n[0]}" onclick="go('${n[0]}')"><span class="i">${n[1]}</span><span class="lbl">${lang==='fr'?n[2]:n[3]}</span></div>`).join('');
+}
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.scr===id));
+  document.querySelector('.content').scrollTo(0,0);
+}
+function openLeaveForm(){document.getElementById('leaveForm').classList.add('on');}
+function tab(el,pane){
+  el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('on'));document.getElementById(pane).classList.add('on');
+}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(e=>{const k=e.getAttribute('data-i18n');if(I18N[lang][k])e.textContent=I18N[lang][k];});
+  buildNav();
+}
+function toggleLang(){lang=lang==='fr'?'en':'fr';document.getElementById('lfr').classList.toggle('on',lang==='fr');document.getElementById('len').classList.toggle('on',lang==='en');applyLang();}
+const MODALS={
+  video:`<div style="font-weight:700;margin-bottom:4px">Vidéo explicative</div><div class="vbox">▶</div><div style="color:var(--dim);font-size:13px">Tuto step-by-step (2-4 min) attaché à l'annonce.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Fermer</button>`,
+  sign:`<div style="font-size:30px">✍️</div><div style="font-weight:700;margin:6px 0">Signature OSIGN</div><div style="color:var(--dim);font-size:13px">Signez le document directement dans le portail (module signature ODS).</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Signer</button>`,
+  sent:`<div style="font-size:30px">✅</div><div style="font-weight:700;margin:6px 0">Demande envoyée</div><div style="color:var(--dim);font-size:13px">Votre manager (ou son backup) recevra la demande pour approbation.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">OK</button>`,
+  change:`<div style="font-size:30px">✏️</div><div style="font-weight:700;margin:6px 0">Demander un changement</div><div style="color:var(--dim);font-size:13px">Modifiez les champs libres, ou joignez une pièce. La RH valide avant intégration au dossier.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Envoyer</button>`,
+  survey:`<div style="font-size:30px">📊</div><div style="font-weight:700;margin:6px 0">Enquête anonyme</div><div style="color:var(--dim);font-size:13px">Vos réponses sont anonymes. Aucun résultat n'est affiché pour un service de moins de 5 répondants.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Commencer</button>`,
+  new:`<div style="font-weight:700;margin-bottom:8px">Nouveau…</div><div style="text-align:left;font-size:14px;color:var(--dim)">🌴 Demande de congé<br>🧾 Note de frais<br>📄 Demande de document<br>📣 Annonce (RH)</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Fermer</button>`,
+  notif:`<div style="font-weight:700;margin-bottom:8px">Notifications</div><div style="text-align:left;font-size:13px;color:var(--dim)">• Votre demande de congé est en attente<br>• Nouvelle annonce : politique de congés<br>• Formation sécurité à terminer</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Fermer</button>`
+};
+function openModal(k){document.getElementById('modalbox').innerHTML=MODALS[k]||'';document.getElementById('modal').classList.add('on');}
+function closeModal(){document.getElementById('modal').classList.remove('on');}
+buildNav();
+</script>
+</body>
+</html>
