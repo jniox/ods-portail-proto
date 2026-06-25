@@ -146,6 +146,12 @@ h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);m
       <div class="cards g3">
         <div>
           <div class="card">
+            <div class="ct">📍 <span data-i18n="mystatus">Mon statut aujourd'hui</span></div>
+            <div style="text-align:center;padding:2px 0"><span style="font-size:22px">🏠</span><div style="font-weight:700">Télétravail</div><div style="font-size:11px;color:var(--faint)">déduit · aucun congé/mission, pas de pointage bureau</div></div>
+            <button class="btn full" style="margin-top:9px" onclick="openModal('qr')" data-i18n="checkqr">Pointer au bureau (QR)</button>
+            <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px">ou auto. via serrure connectée 🔐</div>
+          </div>
+          <div class="card" style="margin-top:14px">
             <div class="ct">🌴 <span data-i18n="myleave">Mes congés</span></div>
             <div class="lv"><div class="n">11,0</div><div class="u" data-i18n="daysavail">jours disponibles</div></div>
             <button class="btn full" style="margin-top:10px" onclick="go('conges');openLeaveForm()" data-i18n="requestleave">Demander un congé</button>
@@ -179,7 +185,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);m
           </div>
           <div class="card" style="margin-top:14px">
             <div class="ct">🔗 <span data-i18n="shortcuts">Raccourcis</span></div>
-            <div class="mini" style="cursor:pointer" onclick="go('bulletins')">📄 Mes bulletins</div>
+            <div class="mini" style="cursor:pointer" onclick="openBulletins()">📄 Mes bulletins</div>
             <div class="mini" style="cursor:pointer" onclick="go('annuaire')">📇 Annuaire</div>
             <div class="mini" style="cursor:pointer" onclick="go('formation')">🎓 Mes formations</div>
           </div>
@@ -244,6 +250,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);m
         <div class="tab" onclick="tab(this,'t-conge')" data-i18n="tconge">Congés</div>
         <div class="tab" onclick="tab(this,'t-docs')" data-i18n="tdocs">Documents</div>
         <div class="tab" onclick="tab(this,'t-urg')" data-i18n="turg">Urgence</div>
+        <div class="tab" id="tab-bull" onclick="tab(this,'t-bull')" data-i18n="tbull">Bulletins</div>
       </div>
       <div class="card">
         <div class="tabpane on" id="t-perso">
@@ -264,6 +271,11 @@ h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);m
           <button class="btn ghost" style="margin-top:12px" onclick="openModal('change')">+ Joindre un document</button>
         </div>
         <div class="tabpane" id="t-urg"><div class="kv"><span class="k">Contact d'urgence</span><span class="v">M. Ndiaye · 77 000 00 00</span></div></div>
+        <div class="tabpane" id="t-bull">
+          <div class="kv"><span class="k">📄 Bulletin mai 2026</span><span class="v vid">télécharger</span></div>
+          <div class="kv"><span class="k">📄 Bulletin avril 2026</span><span class="v vid">télécharger</span></div>
+          <div class="kv"><span class="k">📄 Bulletin mars 2026</span><span class="v vid">télécharger</span></div>
+        </div>
       </div>
         </div>
       </div>
@@ -325,14 +337,33 @@ h1{font-family:var(--serif);font-weight:600;font-size:2rem;color:var(--orange);m
       <button class="btn" style="margin-top:14px" onclick="openModal('survey')" data-i18n="answersurvey">Répondre à l'enquête</button>
     </section>
 
-    <!-- BULLETINS -->
-    <section class="screen" id="s-bulletins">
-      <h1 data-i18n="payslips">Mes bulletins</h1>
-      <p class="muted">Bulletins de paie en self-service.</p>
-      <div class="card">
-        <div class="kv"><span class="k">📄 Mai 2026</span><span class="v vid">télécharger</span></div>
-        <div class="kv"><span class="k">📄 Avril 2026</span><span class="v vid">télécharger</span></div>
-        <div class="kv"><span class="k">📄 Mars 2026</span><span class="v vid">télécharger</span></div>
+    <!-- MISSIONS -->
+    <section class="screen" id="s-missions">
+      <h1 data-i18n="missions">Missions</h1>
+      <p class="muted" data-i18n="missionsub">Demandes de mission — historisées, validées par la hiérarchie, intégrées aux Achats.</p>
+      <button class="btn" onclick="openMissionForm()" data-i18n="reqmission">Demander une mission</button>
+      <div class="form" id="missionForm">
+        <div class="frow"><label>Objet de la mission</label><input class="inp" placeholder="Ex. Salon professionnel"></div>
+        <div class="cards g2">
+          <div class="frow"><label>Destination</label><input class="inp" value="Abidjan"></div>
+          <div class="frow"><label>Budget estimé</label><input class="inp" value="450 000 FCFA"></div>
+        </div>
+        <div class="cards g2">
+          <div class="frow"><label>Du</label><input class="inp" type="date" value="2026-07-07"></div>
+          <div class="frow"><label>Au</label><input class="inp" type="date" value="2026-07-10"></div>
+        </div>
+        <div class="hintok">Circuit : hiérarchie → Achats (logistique / décaissement) → historisé RH</div>
+        <button class="btn" style="margin-top:12px" onclick="openModal('mission')">Soumettre la demande</button>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <div class="ct">🗂️ <span data-i18n="mymissions">Mes missions</span></div>
+        <div class="kv"><span class="k">Abidjan · 7–10 juil · Salon pro</span><span class="v" style="color:var(--orange)">Hiérarchie</span></div>
+        <div class="kv"><span class="k">Saint-Louis · 2–3 juin · Audit client</span><span class="v" style="color:var(--blue)">Achats</span></div>
+        <div class="kv"><span class="k">Thiès · 12 mai · Formation</span><span class="v" style="color:var(--green)">Clôturée</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <div class="ct">🔗 Intégration Achats</div>
+        <div style="font-size:13px;color:var(--dim)">Chaque mission validée crée une demande côté <b>Achats</b> (transport, logistique, décaissement) et reste tracée dans le dossier RH — <b>fini les missions connues seulement des Achats</b>.</div>
       </div>
     </section>
 
@@ -353,11 +384,11 @@ const NAV = [
   ['actu','📣','Actualités','News'],
   ['formation','🎓','Formation','Training'],
   ['engagement','📊','Engagement','Engagement'],
-  ['bulletins','📄','Bulletins','Payslips'],
+  ['missions','✈️','Missions','Trips'],
 ];
 const I18N = {
-  fr:{search:"Rechercher un collègue, un document…",hello:"Bonjour, Awa 👋",myleave:"Mes congés",daysavail:"jours disponibles",requestleave:"Demander un congé",mytasks:"Mes tâches",whatsnew:"Quoi de neuf chez ODS",outtoday:"Absents aujourd'hui :",newjoiners:"Nouveaux arrivants — cette semaine",birthdays:"Anniversaires du mois",shortcuts:"Raccourcis",leave:"Mes congés",leavesub:"Vos soldes par type, vos demandes en cours.",myrequests:"Mes demandes",ftype:"Type de congé",ffrom:"Du",fto:"Au",send:"Envoyer la demande",myfile:"Mon dossier",tperso:"Personnel",temploi:"Emploi",tconge:"Congés",tdocs:"Documents",turg:"Urgence",reqchange:"Demander un changement",directory:"Annuaire",dirsub:"Qui est qui, qui est présent.",orgchart:"Organigramme",news:"Actualités",training:"Formation",engagement:"Engagement",engsub:"Enquête anonyme — résultats par service (masqués si < 5 répondants).",answersurvey:"Répondre à l'enquête",payslips:"Mes bulletins",newbtn:"Nouveau",vitaldata:"Données vitales",upcoming:"Congés à venir (équipe)",reqchange:"Demander un changement"},
-  en:{search:"Search a colleague, a document…",hello:"Hello, Awa 👋",myleave:"My leave",daysavail:"days available",requestleave:"Request leave",mytasks:"My tasks",whatsnew:"What's new at ODS",outtoday:"Out today:",newjoiners:"New joiners — this week",birthdays:"Birthdays this month",shortcuts:"Shortcuts",leave:"My leave",leavesub:"Your balances by type, your pending requests.",myrequests:"My requests",ftype:"Leave type",ffrom:"From",fto:"To",send:"Submit request",myfile:"My profile",tperso:"Personal",temploi:"Job",tconge:"Leave",tdocs:"Documents",turg:"Emergency",reqchange:"Request a change",directory:"Directory",dirsub:"Who's who, who's in.",orgchart:"Org chart",news:"News",training:"Training",engagement:"Engagement",engsub:"Anonymous survey — results by team (hidden if < 5 respondents).",answersurvey:"Take the survey",payslips:"My payslips",newbtn:"New",vitaldata:"Vital data",upcoming:"Upcoming time off (team)",reqchange:"Request a change"}
+  fr:{search:"Rechercher un collègue, un document…",hello:"Bonjour, Awa 👋",myleave:"Mes congés",daysavail:"jours disponibles",requestleave:"Demander un congé",mytasks:"Mes tâches",whatsnew:"Quoi de neuf chez ODS",outtoday:"Absents aujourd'hui :",newjoiners:"Nouveaux arrivants — cette semaine",birthdays:"Anniversaires du mois",shortcuts:"Raccourcis",leave:"Mes congés",leavesub:"Vos soldes par type, vos demandes en cours.",myrequests:"Mes demandes",ftype:"Type de congé",ffrom:"Du",fto:"Au",send:"Envoyer la demande",myfile:"Mon dossier",tperso:"Personnel",temploi:"Emploi",tconge:"Congés",tdocs:"Documents",turg:"Urgence",reqchange:"Demander un changement",directory:"Annuaire",dirsub:"Qui est qui, qui est présent.",orgchart:"Organigramme",news:"Actualités",training:"Formation",engagement:"Engagement",engsub:"Enquête anonyme — résultats par service (masqués si < 5 répondants).",answersurvey:"Répondre à l'enquête",payslips:"Mes bulletins",newbtn:"Nouveau",vitaldata:"Données vitales",upcoming:"Congés à venir (équipe)",reqchange:"Demander un changement",mystatus:"Mon statut aujourd'hui",checkqr:"Pointer au bureau (QR)",missions:"Missions",missionsub:"Demandes de mission — historisées, validées par la hiérarchie, intégrées aux Achats.",reqmission:"Demander une mission",mymissions:"Mes missions",tbull:"Bulletins"},
+  en:{search:"Search a colleague, a document…",hello:"Hello, Awa 👋",myleave:"My leave",daysavail:"days available",requestleave:"Request leave",mytasks:"My tasks",whatsnew:"What's new at ODS",outtoday:"Out today:",newjoiners:"New joiners — this week",birthdays:"Birthdays this month",shortcuts:"Shortcuts",leave:"My leave",leavesub:"Your balances by type, your pending requests.",myrequests:"My requests",ftype:"Leave type",ffrom:"From",fto:"To",send:"Submit request",myfile:"My profile",tperso:"Personal",temploi:"Job",tconge:"Leave",tdocs:"Documents",turg:"Emergency",reqchange:"Request a change",directory:"Directory",dirsub:"Who's who, who's in.",orgchart:"Org chart",news:"News",training:"Training",engagement:"Engagement",engsub:"Anonymous survey — results by team (hidden if < 5 respondents).",answersurvey:"Take the survey",payslips:"My payslips",newbtn:"New",vitaldata:"Vital data",upcoming:"Upcoming time off (team)",reqchange:"Request a change",mystatus:"My status today",checkqr:"Check in at office (QR)",missions:"Trips",missionsub:"Trip requests — logged, approved by management, integrated with Procurement.",reqmission:"Request a trip",mymissions:"My trips",tbull:"Payslips"}
 };
 let lang='fr';
 function buildNav(){
@@ -371,6 +402,8 @@ function go(id){
   document.querySelector('.content').scrollTo(0,0);
 }
 function openLeaveForm(){document.getElementById('leaveForm').classList.add('on');}
+function openMissionForm(){document.getElementById('missionForm').classList.add('on');}
+function openBulletins(){go('dossier');var t=document.getElementById('tab-bull');if(t)tab(t,'t-bull');}
 function tab(el,pane){
   el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
   document.querySelectorAll('.tabpane').forEach(p=>p.classList.remove('on'));document.getElementById(pane).classList.add('on');
@@ -387,6 +420,8 @@ const MODALS={
   change:`<div style="font-size:30px">✏️</div><div style="font-weight:700;margin:6px 0">Demander un changement</div><div style="color:var(--dim);font-size:13px">Modifiez les champs libres, ou joignez une pièce. La RH valide avant intégration au dossier.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Envoyer</button>`,
   survey:`<div style="font-size:30px">📊</div><div style="font-weight:700;margin:6px 0">Enquête anonyme</div><div style="color:var(--dim);font-size:13px">Vos réponses sont anonymes. Aucun résultat n'est affiché pour un service de moins de 5 répondants.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Commencer</button>`,
   new:`<div style="font-weight:700;margin-bottom:8px">Nouveau…</div><div style="text-align:left;font-size:14px;color:var(--dim)">🌴 Demande de congé<br>🧾 Note de frais<br>📄 Demande de document<br>📣 Annonce (RH)</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Fermer</button>`,
+  qr:`<div style="font-weight:700;margin-bottom:6px">Pointage bureau</div><div style="width:130px;height:130px;margin:12px auto;background:repeating-conic-gradient(#2c2419 0 25%,#fff 0 50%) 50%/22px 22px;border:6px solid #2c2419;border-radius:10px"></div><div style="color:var(--dim);font-size:13px">Scannez ce QR à l'entrée — ou laissez la <b>serrure connectée</b> pointer automatiquement. Niveau 1 (QR) / Niveau 2 (serrures).</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Pointer ✓</button>`,
+  mission:`<div style="font-size:30px">✈️</div><div style="font-weight:700;margin:6px 0">Mission soumise</div><div style="color:var(--dim);font-size:13px">Circuit : validation hiérarchie → <b>Achats</b> (logistique/décaissement) → historisée dans votre dossier RH.</div><button class="btn" style="margin-top:14px" onclick="closeModal()">OK</button>`,
   notif:`<div style="font-weight:700;margin-bottom:8px">Notifications</div><div style="text-align:left;font-size:13px;color:var(--dim)">• Votre demande de congé est en attente<br>• Nouvelle annonce : politique de congés<br>• Formation sécurité à terminer</div><button class="btn" style="margin-top:14px" onclick="closeModal()">Fermer</button>`
 };
 function openModal(k){document.getElementById('modalbox').innerHTML=MODALS[k]||'';document.getElementById('modal').classList.add('on');}
